@@ -303,19 +303,20 @@
 
         .person {
             color: white;
-            padding: 10px 14px;
-            border-radius: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
             cursor: move;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.3s;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
             display: inline-flex;
             justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             position: absolute;
-            min-width: 180px;
-            max-width: 250px;
+            min-width: 120px;
+            max-width: 160px;
+            white-space: nowrap;
         }
 
         .person:hover {
@@ -332,25 +333,25 @@
         .person-info {
             flex: 1;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .person-name {
+            font-weight: 500;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .person-seniority {
             font-weight: 600;
-            font-size: 14px;
-        }
-
-        .person-meta {
-            display: flex;
-            gap: 8px;
             font-size: 11px;
-        }
-
-        .person-team, .person-seniority {
-            background: rgba(255,255,255,0.25);
-            padding: 2px 8px;
-            border-radius: 4px;
+            opacity: 0.9;
+            flex-shrink: 0;
         }
 
         .remove-person {
@@ -358,11 +359,12 @@
             border: none;
             color: white;
             cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
             transition: all 0.2s;
             flex-shrink: 0;
+            line-height: 1;
         }
 
         .remove-person:hover {
@@ -1176,13 +1178,19 @@
                 div.style.top = posY + 'px';
             }
 
+            // Abbreviate seniority
+            const seniorityMap = {
+                'Jr': 'Jr',
+                'SSr': 'SSr',
+                'Sr': 'Sr',
+                'Supervisor': 'Sup'
+            };
+            const shortSeniority = seniorityMap[seniority] || seniority;
+
             div.innerHTML = `
                 <div class="person-info">
                     <span class="person-name">${name}</span>
-                    <div class="person-meta">
-                        <span class="person-team">${team}</span>
-                        <span class="person-seniority">${seniority}</span>
-                    </div>
+                    <span class="person-seniority">(${shortSeniority})</span>
                 </div>
                 <button class="remove-person" onclick="removePerson(event)">✕</button>
             `;
