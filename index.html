@@ -497,36 +497,71 @@
             background: #f8d7da;
         }
 
+        .matrix-with-guide {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: flex-start;
+        }
+
+        .matrix-container {
+            flex: 1;
+            min-width: 0;
+        }
+
         .guide-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            width: 350px;
+            flex-shrink: 0;
+            background: #f8f9fa;
+            border: 2px solid #667eea;
             padding: 20px;
             border-radius: 10px;
-            margin-bottom: 20px;
+            max-height: 800px;
+            overflow-y: auto;
         }
 
         .guide-box h3 {
             margin-bottom: 15px;
-            border-bottom: 2px solid rgba(255,255,255,0.3);
+            border-bottom: 2px solid #667eea;
             padding-bottom: 10px;
+            color: #333;
+        }
+
+        .guide-box .section-title {
+            margin-bottom: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            color: #667eea;
+        }
+
+        .guide-box .section-title:first-of-type {
+            margin-top: 0;
         }
 
         .guide-item {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             padding: 10px;
-            background: rgba(255,255,255,0.1);
+            background: white;
             border-radius: 6px;
+            border-left: 3px solid #667eea;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .guide-item strong {
             display: block;
             margin-bottom: 4px;
+            color: #333;
+            font-size: 12px;
         }
 
         .guide-item p {
-            font-size: 13px;
-            opacity: 0.9;
+            font-size: 11px;
             margin: 0;
+            color: #666;
+            line-height: 1.4;
         }
 
         @media print {
@@ -588,55 +623,6 @@
             </div>
         </div>
 
-        <div class="guide-box">
-            <h3>📖 Guía de Cuadrantes</h3>
-
-            <div style="margin-bottom: 15px; font-weight: bold; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Alto Potencial</div>
-
-            <div class="guide-item">
-                <strong>⭐ Estrella (Recuadro 1) - Alto Performance / Alto Potencial</strong>
-                <p>Constantemente se desempeña bien en una variedad de tareas; empleado superestrella. Piensa en grande; solucionador de problemas; auto motivado.</p>
-            </div>
-            <div class="guide-item">
-                <strong>Futura Estrella (Recuadro 2) - Medio Performance / Alto Potencial</strong>
-                <p>Le va extremadamente bien en el trabajo actual con potencial para hacer más; establece asignaciones para ayudarlo a prepararse para el próximo nivel.</p>
-            </div>
-            <div class="guide-item">
-                <strong>Disfuncional (Recuadro 5) - Bajo Performance / Alto Potencial</strong>
-                <p>Profesional experimentado capaz de ampliar su rol, pero puede estar experimentando problemas que requieren entrenamiento y orientación.</p>
-            </div>
-
-            <div style="margin: 15px 0; font-weight: bold; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Potencial Medio</div>
-
-            <div class="guide-item">
-                <strong>Alta Performance (Recuadro 3) - Alto Performance / Medio Potencial</strong>
-                <p>El rol actual aún puede brindar oportunidades de crecimiento centrado en lo táctico; El enfoque debe ser ayudar a mejorar su pensamiento estratégico.</p>
-            </div>
-            <div class="guide-item">
-                <strong>Empleado Clave (Recuadro 6) - Medio Performance / Medio Potencial</strong>
-                <p>Puede considerarse para la ampliación del empleo al mismo nivel, pero puede necesitar entrenamiento en varias áreas, incluida la gestión de personas.</p>
-            </div>
-            <div class="guide-item">
-                <strong>Dilema (Recuadro 8) - Bajo Performance / Medio Potencial</strong>
-                <p>Con el entrenamiento adecuado podría progresar dentro del nivel; enfócate en las metas para este empleado.</p>
-            </div>
-
-            <div style="margin: 15px 0; font-weight: bold; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Bajo Potencial</div>
-
-            <div class="guide-item">
-                <strong>Excelente Profesional (Recuadro 4) - Alto Performance / Bajo Potencial</strong>
-                <p>Experimentado y de alto rendimiento pero ha alcanzado el límite del potencial profesional. Sigue siendo un empleado valioso y puede ser alentado a desarrollar habilidades de comunicación y delegación.</p>
-            </div>
-            <div class="guide-item">
-                <strong>Buen Desempeño (Recuadro 7) - Medio Performance / Bajo Potencial</strong>
-                <p>Ejecutante efectivo, pero puede haber alcanzado el potencial profesional; trate de entrenar a los empleados para que sean más innovadores.</p>
-            </div>
-            <div class="guide-item">
-                <strong>⚠️ Considerar Despido (Recuadro 9) - Bajo Performance / Bajo Potencial</strong>
-                <p>Puede ser candidato para reasignación, reclasificación a un nivel inferior o para salir de la organización.</p>
-            </div>
-        </div>
-
         <div class="tabs">
             <button class="tab active" onclick="switchTab('priscila')">👥 Mejora Continua - Priscila</button>
             <button class="tab" onclick="switchTab('bruno')">👥 MPC - Bruno</button>
@@ -671,43 +657,93 @@
                 <div class="waiting-list"></div>
             </div>
 
-            <div class="grid-container" data-team="priscila">
-                <div class="axis-label corner"></div>
-                <div class="axis-label">Potencial: Bajo</div>
-                <div class="axis-label">Potencial: Medio</div>
-                <div class="axis-label">Potencial: Alto</div>
+            <div class="matrix-with-guide">
+                <div class="matrix-container">
+                    <div class="grid-container" data-team="priscila">
+                        <div class="axis-label corner"></div>
+                        <div class="axis-label">Potencial: Bajo</div>
+                        <div class="axis-label">Potencial: Medio</div>
+                        <div class="axis-label">Potencial: Alto</div>
 
-                <div class="axis-label vertical">Performance: Alto</div>
-                <div class="box" data-performance="Alto" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Alto Performance / Bajo Potencial</div>
-                </div>
-                <div class="box" data-performance="Alto" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Alto Performance / Medio Potencial</div>
-                </div>
-                <div class="box" data-performance="Alto" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">⭐ Alto Performance / Alto Potencial</div>
+                        <div class="axis-label vertical">Performance: Alto</div>
+                        <div class="box" data-performance="Alto" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Alto Performance / Bajo Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Alto" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Alto Performance / Medio Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Alto" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">⭐ Alto Performance / Alto Potencial</div>
+                        </div>
+
+                        <div class="axis-label vertical">Performance: Medio</div>
+                        <div class="box" data-performance="Medio" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Medio Performance / Bajo Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Medio" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Medio Performance / Medio Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Medio" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Medio Performance / Alto Potencial</div>
+                        </div>
+
+                        <div class="axis-label vertical">Performance: Bajo</div>
+                        <div class="box" data-performance="Bajo" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">⚠️ Bajo Performance / Bajo Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Bajo" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Bajo Performance / Medio Potencial</div>
+                        </div>
+                        <div class="box" data-performance="Bajo" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            <div class="box-header">Bajo Performance / Alto Potencial</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="axis-label vertical">Performance: Medio</div>
-                <div class="box" data-performance="Medio" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Medio Performance / Bajo Potencial</div>
-                </div>
-                <div class="box" data-performance="Medio" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Medio Performance / Medio Potencial</div>
-                </div>
-                <div class="box" data-performance="Medio" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Medio Performance / Alto Potencial</div>
-                </div>
+                <div class="guide-box">
+                    <h3>📖 Guía de Cuadrantes</h3>
 
-                <div class="axis-label vertical">Performance: Bajo</div>
-                <div class="box" data-performance="Bajo" data-potential="Bajo" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">⚠️ Bajo Performance / Bajo Potencial</div>
-                </div>
-                <div class="box" data-performance="Bajo" data-potential="Medio" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Bajo Performance / Medio Potencial</div>
-                </div>
-                <div class="box" data-performance="Bajo" data-potential="Alto" ondrop="drop(event)" ondragover="allowDrop(event)">
-                    <div class="box-header">Bajo Performance / Alto Potencial</div>
+                    <div class="section-title">Alto Potencial</div>
+                    <div class="guide-item">
+                        <strong>⭐ Estrella (R1)</strong>
+                        <p>Alto Performance / Alto Potencial - Constantemente se desempeña bien en una variedad de tareas; empleado superestrella. Piensa en grande; solucionador de problemas; auto motivado.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>Futura Estrella (R2)</strong>
+                        <p>Medio Performance / Alto Potencial - Le va extremadamente bien en el trabajo actual con potencial para hacer más; establece asignaciones para ayudarlo a prepararse para el próximo nivel.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>Disfuncional (R5)</strong>
+                        <p>Bajo Performance / Alto Potencial - Profesional experimentado capaz de ampliar su rol, pero puede estar experimentando problemas que requieren entrenamiento y orientación.</p>
+                    </div>
+
+                    <div class="section-title">Potencial Medio</div>
+                    <div class="guide-item">
+                        <strong>Alta Performance (R3)</strong>
+                        <p>Alto Performance / Medio Potencial - El rol actual aún puede brindar oportunidades de crecimiento centrado en lo táctico; El enfoque debe ser ayudar a mejorar su pensamiento estratégico.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>Empleado Clave (R6)</strong>
+                        <p>Medio Performance / Medio Potencial - Puede considerarse para la ampliación del empleo al mismo nivel, pero puede necesitar entrenamiento en varias áreas, incluida la gestión de personas.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>Dilema (R8)</strong>
+                        <p>Bajo Performance / Medio Potencial - Con el entrenamiento adecuado podría progresar dentro del nivel; enfócate en las metas para este empleado.</p>
+                    </div>
+
+                    <div class="section-title">Bajo Potencial</div>
+                    <div class="guide-item">
+                        <strong>Excelente Profesional (R4)</strong>
+                        <p>Alto Performance / Bajo Potencial - Experimentado y de alto rendimiento pero ha alcanzado el límite del potencial profesional. Sigue siendo un empleado valioso y puede ser alentado a desarrollar habilidades de comunicación y delegación.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>Buen Desempeño (R7)</strong>
+                        <p>Medio Performance / Bajo Potencial - Ejecutante efectivo, pero puede haber alcanzado el potencial profesional; trate de entrenar a los empleados para que sean más innovadores.</p>
+                    </div>
+                    <div class="guide-item">
+                        <strong>⚠️ Considerar Despido (R9)</strong>
+                        <p>Bajo Performance / Bajo Potencial - Puede ser candidato para reasignación, reclasificación a un nivel inferior o para salir de la organización.</p>
+                    </div>
                 </div>
             </div>
 
