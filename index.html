@@ -158,6 +158,7 @@
             border-radius: 8px 8px 0 0;
             transition: all 0.3s;
             white-space: nowrap;
+            color: #333;
         }
 
         .tab:hover {
@@ -496,6 +497,38 @@
             background: #f8d7da;
         }
 
+        .guide-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .guide-box h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+
+        .guide-item {
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+        }
+
+        .guide-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .guide-item p {
+            font-size: 13px;
+            opacity: 0.9;
+            margin: 0;
+        }
+
         @media print {
             .controls, .tabs, button, .logout-btn {
                 display: none;
@@ -552,6 +585,26 @@
             <div class="legend-section">
                 <div class="legend-title">💡 Tip</div>
                 <div style="color: #666; font-size: 13px;">Arrastra las personas dentro de cada cuadrante para posicionarlas con mayor precisión</div>
+            </div>
+        </div>
+
+        <div class="guide-box">
+            <h3>📖 Guía de Cuadrantes</h3>
+            <div class="guide-item">
+                <strong>⭐ Alto Performance / Alto Potencial</strong>
+                <p>Estrellas - Listos para roles de liderazgo</p>
+            </div>
+            <div class="guide-item">
+                <strong>Alto Performance / Medio Potencial</strong>
+                <p>Profesionales sólidos - Contribuidores clave</p>
+            </div>
+            <div class="guide-item">
+                <strong>Medio Performance / Alto Potencial</strong>
+                <p>Diamantes en bruto - Requieren desarrollo</p>
+            </div>
+            <div class="guide-item">
+                <strong>⚠️ Bajo Performance / Bajo Potencial</strong>
+                <p>Requieren plan de acción o evaluación de fit</p>
             </div>
         </div>
 
