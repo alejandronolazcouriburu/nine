@@ -304,7 +304,7 @@
         }
 
         .person {
-            color: white;
+            color: #000;
             padding: 8px 12px;
             border-radius: 6px;
             cursor: move;
@@ -347,21 +347,19 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .person-seniority {
             font-weight: 600;
             font-size: 12px;
-            opacity: 0.95;
+            opacity: 0.8;
             flex-shrink: 0;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
 
         .remove-person {
-            background: rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.2);
             border: none;
-            color: white;
+            color: #000;
             cursor: pointer;
             padding: 2px 6px;
             border-radius: 3px;
@@ -369,10 +367,11 @@
             transition: all 0.2s;
             flex-shrink: 0;
             line-height: 1;
+            font-weight: bold;
         }
 
         .remove-person:hover {
-            background: rgba(255,255,255,0.5);
+            background: rgba(0,0,0,0.3);
         }
 
         /* Color coding by seniority */
