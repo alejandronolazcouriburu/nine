@@ -286,6 +286,9 @@
             padding: 15px;
             position: relative;
             transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
         .box.drag-over {
@@ -311,14 +314,12 @@
             font-size: 14px;
             transition: all 0.3s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            display: inline-flex;
+            display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            position: absolute;
-            min-width: 140px;
-            max-width: 180px;
-            white-space: nowrap;
+            width: 100%;
+            margin-bottom: 6px;
         }
 
         .person:hover {
@@ -1563,8 +1564,11 @@
             }
 
             const person = createPersonElement(name, teamName, seniority);
-            const waitingArea = document.querySelector(`#${leaderId}-content .waiting-area .waiting-list`);
-            waitingArea.appendChild(person);
+            const waitingList = document.querySelector(`#${leaderId}-content .waiting-area .waiting-list`);
+            waitingList.appendChild(person);
+
+            // Sort waiting list alphabetically
+            sortWaitingList(waitingList);
 
             nameInput.value = '';
             senioritySelect.value = '';
@@ -1573,18 +1577,13 @@
             saveData();
         }
 
-        function createPersonElement(name, team, seniority, posX = null, posY = null) {
+        function createPersonElement(name, team, seniority) {
             const div = document.createElement('div');
             div.className = 'person';
             div.draggable = true;
             div.dataset.team = team;
             div.dataset.name = name;
             div.dataset.seniority = seniority;
-
-            if (posX !== null && posY !== null) {
-                div.style.left = posX + 'px';
-                div.style.top = posY + 'px';
-            }
 
             // Abbreviate seniority
             const seniorityMap = {
@@ -1644,34 +1643,41 @@
             if (currentTab === 'consolidado') return;
 
             if (dropTarget.classList.contains('box')) {
-                // Position relative to the box
-                const boxRect = dropTarget.getBoundingClientRect();
-                const posX = e.clientX - boxRect.left - dragOffsetX;
-                const posY = e.clientY - boxRect.top - dragOffsetY;
-
-                // Ensure element stays within bounds
-                const maxX = boxRect.width - draggedElement.offsetWidth - 10;
-                const maxY = boxRect.height - draggedElement.offsetHeight - 10;
-
-                const finalX = Math.max(5, Math.min(posX, maxX));
-                const finalY = Math.max(35, Math.min(posY, maxY)); // 35 to avoid header
-
-                draggedElement.style.left = finalX + 'px';
-                draggedElement.style.top = finalY + 'px';
-
+                // Simply append to box
                 dropTarget.appendChild(draggedElement);
+                // Sort people alphabetically in the box
+                sortBox(dropTarget);
 
             } else if (dropTarget.classList.contains('waiting-area')) {
-                // Reset positioning for waiting area
-                draggedElement.style.left = '';
-                draggedElement.style.top = '';
-                draggedElement.style.position = 'relative';
-
                 dropTarget.querySelector('.waiting-list').appendChild(draggedElement);
+                // Sort waiting list alphabetically
+                sortWaitingList(dropTarget.querySelector('.waiting-list'));
             }
 
             updateStats(currentTab);
             saveData();
+        }
+
+        // Sort people alphabetically in a box
+        function sortBox(box) {
+            const people = Array.from(box.querySelectorAll('.person'));
+            people.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+
+            // Remove all people
+            people.forEach(p => p.remove());
+
+            // Re-add in sorted order (after box-header)
+            const header = box.querySelector('.box-header');
+            people.forEach(p => box.appendChild(p));
+        }
+
+        // Sort people alphabetically in waiting list
+        function sortWaitingList(waitingList) {
+            const people = Array.from(waitingList.querySelectorAll('.person'));
+            people.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+
+            people.forEach(p => p.remove());
+            people.forEach(p => waitingList.appendChild(p));
         }
 
         document.addEventListener('dragover', (e) => {
@@ -1737,15 +1743,18 @@
                         const clone = createPersonElement(
                             person.dataset.name,
                             person.dataset.team,
-                            person.dataset.seniority,
-                            person.style.left ? parseFloat(person.style.left) : null,
-                            person.style.top ? parseFloat(person.style.top) : null
+                            person.dataset.seniority
                         );
                         clone.draggable = false; // Make non-draggable in consolidado
                         clone.querySelector('.remove-person').style.display = 'none';
                         targetBox.appendChild(clone);
                     });
                 });
+            });
+
+            // Sort all boxes alphabetically in consolidado
+            consolidadoContent.querySelectorAll('.box').forEach(box => {
+                sortBox(box);
             });
 
             // Update stats
@@ -1788,9 +1797,7 @@
                         data[teamId].boxes[key].push({
                             name: person.dataset.name,
                             team: person.dataset.team,
-                            seniority: person.dataset.seniority,
-                            posX: person.style.left || null,
-                            posY: person.style.top || null
+                            seniority: person.dataset.seniority
                         });
                     });
                 });
@@ -1873,7 +1880,7 @@
                                 });
                             }
 
-                            // Load boxes with positions
+                            // Load boxes
                             if (teamData.boxes && typeof teamData.boxes === 'object') {
                                 Object.keys(teamData.boxes).forEach(key => {
                                     const [performance, potential] = key.split('-');
@@ -1882,10 +1889,11 @@
                                     );
 
                                     if (box && Array.isArray(teamData.boxes[key])) {
-                                        teamData.boxes[key].forEach(person => {
-                                            const posX = person.posX ? parseFloat(person.posX) : null;
-                                            const posY = person.posY ? parseFloat(person.posY) : null;
-                                            box.appendChild(createPersonElement(person.name, person.team, person.seniority, posX, posY));
+                                        // Sort people alphabetically before adding
+                                        const sortedPeople = teamData.boxes[key].sort((a, b) => a.name.localeCompare(b.name));
+
+                                        sortedPeople.forEach(person => {
+                                            box.appendChild(createPersonElement(person.name, person.team, person.seniority));
                                         });
                                     }
                                 });
@@ -1925,17 +1933,18 @@
                     waitingList.appendChild(createPersonElement(person.name, person.team, person.seniority));
                 });
 
-                // Load boxes with positions
+                // Load boxes
                 Object.keys(data[teamId].boxes).forEach(key => {
                     const [performance, potential] = key.split('-');
                     const box = content.querySelector(
                         `.box[data-performance="${performance}"][data-potential="${potential}"]`
                     );
 
-                    data[teamId].boxes[key].forEach(person => {
-                        const posX = person.posX ? parseFloat(person.posX) : null;
-                        const posY = person.posY ? parseFloat(person.posY) : null;
-                        box.appendChild(createPersonElement(person.name, person.team, person.seniority, posX, posY));
+                    // Sort people alphabetically before adding
+                    const sortedPeople = data[teamId].boxes[key].sort((a, b) => a.name.localeCompare(b.name));
+
+                    sortedPeople.forEach(person => {
+                        box.appendChild(createPersonElement(person.name, person.team, person.seniority));
                     });
                 });
 
