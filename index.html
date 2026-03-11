@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>9 Boxes - Equipo CIS</title>
-    <!-- Supabase Client v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -1434,20 +1432,11 @@
         // PASSWORD CONFIGURATION - Change this to set your password
         const CORRECT_PASSWORD = 'CIS2026';
 
-        // SUPABASE CONFIGURATION
-        const SUPABASE_URL = 'https://ftswagnofixdxmjckoem.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3dhZ25vZml4ZHhtamNrb2VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNzQ5MDAsImV4cCI6MjA4ODc1MDkwMH0.Usm0kz-X8FuR4VlpJDMlU50g69fJhYhF9_yPoy7OzD8';
-
+        // SUPABASE DISABLED TEMPORARILY - Using localStorage only
         let supabase = null;
 
-        // Initialize Supabase when available
         function initSupabase() {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase initialized');
-            } else {
-                console.warn('⚠️ Supabase library not loaded, using localStorage only');
-            }
+            console.log('📦 Using localStorage only (Supabase disabled)');
         }
 
         let draggedElement = null;
@@ -1737,7 +1726,7 @@
             document.getElementById('highPerformers-consolidado').textContent = highPerformers.length;
         }
 
-        async function saveData() {
+        function saveData() {
             const data = {};
             const teams = ['priscila', 'bruno', 'mauro', 'carolina', 'jano'];
 
@@ -1774,108 +1763,14 @@
                 });
             });
 
-            // Save to Supabase if available
-            if (supabase) {
-                try {
-                    // Save each team's data separately
-                    for (const teamId of teams) {
-                        const { error } = await supabase
-                            .from('nine_boxes_data')
-                            .upsert({
-                                team_id: teamId,
-                                data: data[teamId],
-                                updated_at: new Date().toISOString()
-                            }, {
-                                onConflict: 'team_id'
-                            });
-
-                        if (error) {
-                            console.error('Error saving to Supabase:', error);
-                        }
-                    }
-                    console.log('✅ Data saved to Supabase');
-                } catch (err) {
-                    console.error('Error:', err);
-                }
-            }
-
-            // Also save to localStorage as backup
+            // Save to localStorage
             localStorage.setItem('9boxes-cis', JSON.stringify(data));
+            console.log('💾 Data saved to localStorage');
         }
 
-        async function loadData() {
-            const teams = ['priscila', 'bruno', 'mauro', 'carolina', 'jano'];
-
-            // If Supabase is not available, load from localStorage
-            if (!supabase) {
-                console.log('📦 Loading from localStorage (Supabase not available)');
-                loadFromLocalStorage();
-                return;
-            }
-
-            try {
-                // Load from Supabase
-                const { data: supabaseData, error } = await supabase
-                    .from('nine_boxes_data')
-                    .select('*');
-
-                if (error) {
-                    console.error('Error loading from Supabase:', error);
-                    // Fallback to localStorage
-                    loadFromLocalStorage();
-                    return;
-                }
-
-                console.log('✅ Data loaded from Supabase');
-
-                // Clear existing data
-                teams.forEach(teamId => {
-                    const content = document.getElementById(`${teamId}-content`);
-                    content.querySelectorAll('.person').forEach(p => p.remove());
-                });
-
-                // Load data from Supabase
-                supabaseData.forEach(row => {
-                    const teamId = row.team_id;
-                    const data = row.data;
-
-                    if (!data || !teams.includes(teamId)) return;
-
-                    const content = document.getElementById(`${teamId}-content`);
-                    const waitingList = content.querySelector('.waiting-list');
-
-                    // Load waiting list
-                    if (data.waiting) {
-                        data.waiting.forEach(person => {
-                            waitingList.appendChild(createPersonElement(person.name, person.team, person.seniority));
-                        });
-                    }
-
-                    // Load boxes with positions
-                    if (data.boxes) {
-                        Object.keys(data.boxes).forEach(key => {
-                            const [performance, potential] = key.split('-');
-                            const box = content.querySelector(
-                                `.box[data-performance="${performance}"][data-potential="${potential}"]`
-                            );
-
-                            if (box) {
-                                data.boxes[key].forEach(person => {
-                                    const posX = person.posX ? parseFloat(person.posX) : null;
-                                    const posY = person.posY ? parseFloat(person.posY) : null;
-                                    box.appendChild(createPersonElement(person.name, person.team, person.seniority, posX, posY));
-                                });
-                            }
-                        });
-                    }
-
-                    updateStats(teamId);
-                });
-
-            } catch (err) {
-                console.error('Error:', err);
-                loadFromLocalStorage();
-            }
+        function loadData() {
+            console.log('📦 Loading from localStorage');
+            loadFromLocalStorage();
         }
 
         function loadFromLocalStorage() {
@@ -1988,10 +1883,10 @@
         }
 
         // Load data and check auth on page load
-        window.addEventListener('load', async function() {
+        window.addEventListener('load', function() {
             initSupabase();
             checkAuth();
-            await loadData();
+            loadData();
             setupRealtimeSync();
         });
 
