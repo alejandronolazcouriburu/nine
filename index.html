@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>9 Boxes - Equipo CIS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1432,11 +1433,42 @@
         // PASSWORD CONFIGURATION - Change this to set your password
         const CORRECT_PASSWORD = 'CIS2026';
 
-        // SUPABASE DISABLED TEMPORARILY - Using localStorage only
-        let supabase = null;
+        // SUPABASE CONFIGURATION
+        const SUPABASE_URL = 'https://ftswagnofixdxmjckoem.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ0c3dhZ25vZml4ZHhtamNrb2VtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNzQ5MDAsImV4cCI6MjA4ODc1MDkwMH0.Usm0kz-X8FuR4VlpJDMlU50g69fJhYhF9_yPoy7OzD8';
 
+        let supabaseClient = null;
+        let isSupabaseReady = false;
+
+        // Initialize Supabase client
         function initSupabase() {
-            console.log('📦 Using localStorage only (Supabase disabled)');
+            return new Promise((resolve) => {
+                // Wait for supabase library to be available
+                const checkSupabase = setInterval(() => {
+                    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                        clearInterval(checkSupabase);
+                        try {
+                            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                            isSupabaseReady = true;
+                            console.log('✅ Supabase initialized successfully');
+                            resolve(true);
+                        } catch (error) {
+                            console.error('❌ Error initializing Supabase:', error);
+                            console.warn('⚠️ Falling back to localStorage only');
+                            resolve(false);
+                        }
+                    }
+                }, 100);
+
+                // Timeout after 5 seconds
+                setTimeout(() => {
+                    clearInterval(checkSupabase);
+                    if (!isSupabaseReady) {
+                        console.warn('⚠️ Supabase library not loaded, using localStorage only');
+                        resolve(false);
+                    }
+                }, 5000);
+            });
         }
 
         let draggedElement = null;
@@ -1726,7 +1758,7 @@
             document.getElementById('highPerformers-consolidado').textContent = highPerformers.length;
         }
 
-        function saveData() {
+        async function saveData() {
             const data = {};
             const teams = ['priscila', 'bruno', 'mauro', 'carolina', 'jano'];
 
@@ -1763,12 +1795,113 @@
                 });
             });
 
-            // Save to localStorage
+            // Save to localStorage first (always)
             localStorage.setItem('9boxes-cis', JSON.stringify(data));
             console.log('💾 Data saved to localStorage');
+
+            // Save to Supabase if available
+            if (isSupabaseReady && supabaseClient) {
+                try {
+                    for (const teamId of teams) {
+                        const { error } = await supabaseClient
+                            .from('nine_boxes_data')
+                            .upsert({
+                                team_id: teamId,
+                                data: data[teamId],
+                                updated_at: new Date().toISOString()
+                            }, {
+                                onConflict: 'team_id'
+                            });
+
+                        if (error) {
+                            console.error(`❌ Error saving ${teamId} to Supabase:`, error.message);
+                        }
+                    }
+                    console.log('☁️ Data synced to Supabase');
+                } catch (err) {
+                    console.error('❌ Supabase sync error:', err);
+                }
+            }
         }
 
-        function loadData() {
+        async function loadData() {
+            const teams = ['priscila', 'bruno', 'mauro', 'carolina', 'jano'];
+
+            // Try to load from Supabase first
+            if (isSupabaseReady && supabaseClient) {
+                try {
+                    console.log('☁️ Loading from Supabase...');
+                    const { data: supabaseData, error } = await supabaseClient
+                        .from('nine_boxes_data')
+                        .select('*');
+
+                    if (error) {
+                        console.error('❌ Error loading from Supabase:', error.message);
+                        console.log('📦 Falling back to localStorage');
+                        loadFromLocalStorage();
+                        return;
+                    }
+
+                    if (supabaseData && supabaseData.length > 0) {
+                        console.log('✅ Data loaded from Supabase');
+
+                        // Clear existing data
+                        teams.forEach(teamId => {
+                            const content = document.getElementById(`${teamId}-content`);
+                            if (content) {
+                                content.querySelectorAll('.person').forEach(p => p.remove());
+                            }
+                        });
+
+                        // Load data from Supabase
+                        supabaseData.forEach(row => {
+                            const teamId = row.team_id;
+                            const teamData = row.data;
+
+                            if (!teamData || !teams.includes(teamId)) return;
+
+                            const content = document.getElementById(`${teamId}-content`);
+                            if (!content) return;
+
+                            const waitingList = content.querySelector('.waiting-list');
+
+                            // Load waiting list
+                            if (teamData.waiting && Array.isArray(teamData.waiting)) {
+                                teamData.waiting.forEach(person => {
+                                    waitingList.appendChild(createPersonElement(person.name, person.team, person.seniority));
+                                });
+                            }
+
+                            // Load boxes with positions
+                            if (teamData.boxes && typeof teamData.boxes === 'object') {
+                                Object.keys(teamData.boxes).forEach(key => {
+                                    const [performance, potential] = key.split('-');
+                                    const box = content.querySelector(
+                                        `.box[data-performance="${performance}"][data-potential="${potential}"]`
+                                    );
+
+                                    if (box && Array.isArray(teamData.boxes[key])) {
+                                        teamData.boxes[key].forEach(person => {
+                                            const posX = person.posX ? parseFloat(person.posX) : null;
+                                            const posY = person.posY ? parseFloat(person.posY) : null;
+                                            box.appendChild(createPersonElement(person.name, person.team, person.seniority, posX, posY));
+                                        });
+                                    }
+                                });
+                            }
+
+                            updateStats(teamId);
+                        });
+                        return;
+                    } else {
+                        console.log('📦 No data in Supabase, trying localStorage');
+                    }
+                } catch (err) {
+                    console.error('❌ Error loading from Supabase:', err);
+                }
+            }
+
+            // Fallback to localStorage
             console.log('📦 Loading from localStorage');
             loadFromLocalStorage();
         }
@@ -1860,34 +1993,52 @@
 
         // Setup real-time sync
         function setupRealtimeSync() {
-            if (!supabase) {
+            if (!isSupabaseReady || !supabaseClient) {
                 console.log('⚠️ Real-time sync not available (Supabase not initialized)');
                 return;
             }
 
-            supabase
-                .channel('nine_boxes_changes')
-                .on('postgres_changes',
-                    {
-                        event: '*',
-                        schema: 'public',
-                        table: 'nine_boxes_data'
-                    },
-                    (payload) => {
-                        console.log('📡 Real-time update received:', payload);
-                        // Reload data when changes are detected
-                        loadData();
-                    }
-                )
-                .subscribe();
+            try {
+                supabaseClient
+                    .channel('nine_boxes_changes')
+                    .on('postgres_changes',
+                        {
+                            event: '*',
+                            schema: 'public',
+                            table: 'nine_boxes_data'
+                        },
+                        (payload) => {
+                            console.log('📡 Real-time update received from another user');
+                            // Reload data when changes are detected (with small delay to avoid conflicts)
+                            setTimeout(() => {
+                                loadData();
+                            }, 500);
+                        }
+                    )
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            console.log('✅ Real-time sync active');
+                        }
+                    });
+            } catch (err) {
+                console.error('❌ Error setting up real-time sync:', err);
+            }
         }
 
         // Load data and check auth on page load
-        window.addEventListener('load', function() {
-            initSupabase();
+        window.addEventListener('load', async function() {
             checkAuth();
-            loadData();
+
+            // Initialize Supabase and wait for it to be ready
+            await initSupabase();
+
+            // Load data (will use Supabase if ready, localStorage otherwise)
+            await loadData();
+
+            // Setup real-time sync if Supabase is ready
             setupRealtimeSync();
+
+            console.log('🚀 Application loaded successfully');
         });
 
         // Auto-save every 30 seconds
