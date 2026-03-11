@@ -287,7 +287,8 @@
             position: relative;
             transition: all 0.3s;
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
+            align-content: flex-start;
             gap: 0;
         }
 
@@ -314,12 +315,14 @@
             font-size: 14px;
             transition: all 0.3s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-            display: flex;
+            display: inline-flex;
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            width: 100%;
+            width: fit-content;
+            min-width: 140px;
             margin-bottom: 6px;
+            margin-right: 6px;
         }
 
         .person:hover {
